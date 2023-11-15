@@ -44,7 +44,7 @@ export default function App() {
         (bank) =>
           bank.name.includes(value) ||
           bank.hira.includes(value) ||
-          bank.kana.includes(value)
+          bank.kana.includes(value),
       );
       setSuggestedBanks(filteredData);
     } else {
@@ -60,7 +60,6 @@ export default function App() {
     setIsFocused(false);
   };
 
-  // 該当の銀行名が見つからない時に表示
   const bankNameMessage = () => {
     if (!isFocused && bankName.length === 0) return null;
     if (bankName.length === 0 || suggestedBanks.length === 0) {
@@ -70,7 +69,7 @@ export default function App() {
       <li
         key={bank.code}
         className="bank-name"
-        onClick={() => handleBankNameClick(bank.normalize.name)}
+        onClick={() => handleBankNameClick(bank.normalize.name, bank.code)}
       >
         {bank.normalize.name}
       </li>
@@ -78,20 +77,20 @@ export default function App() {
   };
 
   // サジェストされた銀行名を選択
-  const handleBankNameClick = (name) => {
+  const handleBankNameClick = (name, code) => {
     setBankName(name);
+    setBankCode(code);
     setSuggestedBanks([]);
     setIsSuggestedOpen(false);
   };
 
-  // const handleBranchCodeChange = async(e) => {
-  //   const value = e.target.value;
-  //   setBranchCode(value);
+  const handleBranchCodeChange = async (e) => {
+    const value = e.target.value;
+    setBranchCode(value);
 
-  //   if(value.length === 3 && bankCode.length === 4) {
-
-  //   }
-  // }
+    if (value.length === 3 && bankCode.length === 4) {
+    }
+  };
 
   return (
     <>
@@ -119,7 +118,7 @@ export default function App() {
             id="BankCode"
             className="input-form"
             placeholder="例）0001"
-            // value={bankCode}
+            value={bankCode}
           ></input>
         </div>
         {/* <div className="form-box">
