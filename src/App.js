@@ -8,6 +8,7 @@ export default function App() {
   const [isSuggestedOpen, setIsSuggestedOpen] = useState(true);
   const [bankCode, setBankCode] = useState("");
   const [branchCode, setBranchCode] = useState("");
+  const [branchName, setBranchName] = useState("");
   const [allBanks, setAllBanks] = useState([]);
 
   useEffect(() => {
@@ -88,14 +89,41 @@ export default function App() {
     const value = e.target.value;
     setBranchCode(value);
 
-    if (value.length === 3 && bankCode.length === 4) {
+    if (bankCode.length === 4 && value.length === 3) {
+      fetch(`https://bank.teraren.com/banks/${bankCode}/branches/${value}.json`)
+        .then((response) => response.json())
+        .then((json) => {
+          setBranchName(json.name);
+        })
+        .catch((error) => {
+          setBranchName("");
+        });
+    }
+  };
+
+  const handleBranchNameChange = async (e) => {
+    const value = e.target.value;
+    setBranchName(value);
+
+    if (bankCode.length === 4) {
+      fetch(`https://bank.teraren.com/banks/${bankCode}/branches.json`)
+        .then((response) => response.json())
+        .then((json) => {
+          const branch = json.find((branch) => branch.name.includes(value));
+          if (branch) {
+            setBranchCode(branch.code);
+          }
+        })
+        .catch((error) => {
+          setBranchCode("");
+        });
     }
   };
 
   return (
     <>
       <form className="form">
-        <div className="form-box">
+        <div>
           <label htmlFor="searchBank">銀行名</label>
           <input
             id="searchBank"
@@ -112,7 +140,7 @@ export default function App() {
             ""
           )}
         </div>
-        <div className="form-box">
+        <div className="form-box-code">
           <label htmlFor="BankCode">金融機関コード</label>
           <input
             id="BankCode"
@@ -121,7 +149,18 @@ export default function App() {
             value={bankCode}
           ></input>
         </div>
-        {/* <div className="form-box">
+        <div className="form-box-branch">
+          <label htmlFor="inputBranchName">支店名</label>
+          <input
+            id="inputBranchName"
+            className="input-form"
+            placeholder="例）丸の内中央"
+            type="text"
+            value={branchName}
+            onChange={handleBranchNameChange}
+          ></input>
+        </div>
+        <div className="form-box">
           <label htmlFor="inputBranchCode">支店コード</label>
           <input
             id="inputBranchCode"
@@ -131,17 +170,7 @@ export default function App() {
             value={branchCode}
             onChange={handleBranchCodeChange}
           ></input>
-        </div> */}
-        {/* <div className="form-box">
-          <label htmlFor="inputBranchName">支店名</label>
-          <input
-            id="inputBranchName"
-            className="input-form"
-            placeholder="例）丸の内中央"
-            type="text"
-            
-          ></input>
-        </div> */}
+        </div>
       </form>
     </>
   );
