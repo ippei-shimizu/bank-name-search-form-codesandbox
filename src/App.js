@@ -85,6 +85,43 @@ export default function App() {
     setIsSuggestedOpen(false);
   };
 
+  // 支店名入力
+  const fetchAllBranches = async (bankCode) => {
+    let allBranches = [];
+    let currentPage = 1;
+    let hasMore = true;
+
+    while (hasMore) {
+      const api = `https://bank.teraren.com/banks/${bankCode}/branches.json?page=${currentPage}`;
+      const response = await fetch(api);
+      const data = await response.json();
+
+      if (data && data.length > 0) {
+        allBranches = allBranches.concat(data);
+        currentPage++;
+      } else {
+        hasMore = false;
+      }
+    }
+    return allBranches;
+  };
+
+  const handleBranchNameChange = async (e) => {
+    const value = e.target.value;
+    setBranchName(value);
+
+    if (bankCode.length === 4) {
+      const branches = await fetchAllBranches(bankCode);
+      const branch = branches.find((branch) => branch.name.includes(value));
+      if (branch) {
+        setBranchCode(branch.code);
+      } else {
+        setBranchCode("");
+      }
+    }
+  };
+
+  // 支店コード入力
   const handleBranchCodeChange = async (e) => {
     const value = e.target.value;
     setBranchCode(value);
@@ -97,25 +134,6 @@ export default function App() {
         })
         .catch((error) => {
           setBranchName("");
-        });
-    }
-  };
-
-  const handleBranchNameChange = async (e) => {
-    const value = e.target.value;
-    setBranchName(value);
-
-    if (bankCode.length === 4) {
-      fetch(`https://bank.teraren.com/banks/${bankCode}/branches.json`)
-        .then((response) => response.json())
-        .then((json) => {
-          const branch = json.find((branch) => branch.name.includes(value));
-          if (branch) {
-            setBranchCode(branch.code);
-          }
-        })
-        .catch((error) => {
-          setBranchCode("");
         });
     }
   };
